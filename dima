@@ -17,19 +17,19 @@ struct Node {
     struct Node* right; //Правая ветвь дерева
 };
 
-void useBackUp(FILE* my_BackUp);
-void MakeBackUp(struct Node* p);
 void editFile(struct Node* p, FILE* file);
-void searchAuthor(struct Node* p, char* author);
-struct Node* MakeBook(struct Node* p, struct Node* new_tree);
-void BooksInfo(struct Node* p);
-void printBookInfo(struct Node* p, char* ISBNprint); //функция вывода информации
+struct Node* readFile(char* strFile);                                   //фукция чтения строки из CSV-файла
+struct Node* MakeBook(struct Node* p, struct Node* new_tree);           //функция добавления книги                      #1
+void removeList(char* value, struct Node* root, struct Node* t);        //функция удаления книги                        #2
+void BooksInfo(struct Node* p);                                         //функция вывода информации о всех книгах       #4
+void MakeBackUp(struct Node* p);                                        //функция создания бэкапа                       #9
+void useBackUp(FILE* my_BackUp);                                        //функция использования бэкапа                  #10
+void searchAuthor(struct Node* p, char* author);                        //функция поиска книги по ее автору             #11
+void printBookInfo(struct Node* p, char* ISBNprint);                    //функция вывода информации
 struct Node* FindSwapRemove(char* buf, struct Node* root);
 void removeSwap(char* buf, struct Node* root);
-void removeList(char* value, struct Node* root, struct Node* t);
-int number(char a[]);   // функция перевода из строки в число
-char* copymal(char* s); //функция создает строку равную s и выдает нужное
-struct Node* readFile(char* strFile);//фукция чтения строки из CSV-файла
+int number(char a[]);                                                   // функция перевода из строки в число
+char* copymal(char* s);                                                 //функция создает строку равную s и выдает нужное
 
 
 int main() {
@@ -42,7 +42,8 @@ int main() {
         tree = readFile(line);
         root = MakeBook(root, tree);
     }
-    printf("Hello\n");
+    printf("Hello, choose action:\n");
+    printf("1)добавить книгу \n2)удаленить книгу \n4)вывести информацию о всех книгах \n9)сделать бэкап \n10)восстановить из бэкапа \n11)поиск книги по автору \n12)завершеить работу\n");
     scanf("%d", &answer);
     while (answer != 12) {
         switch (answer)
@@ -188,8 +189,6 @@ struct Node* readFile(char* strFile) {//фукция чтения строки �
     return np;
 }
 
-//-----------------------------------------------------------------------------------------------
-
 struct Node* FindSwapRemove(char* buf, struct Node* root) {
     int cond;
     struct Node* p = NULL;
@@ -228,7 +227,52 @@ void removeSwap(char* buf, struct Node* root) {
     }
 }
 
-void removeList(char* value, struct Node* root, struct Node* t) {
+//-----------------------------------------------------------------------------------------------
+
+void printBookInfo(struct Node* p, char* ISBNprint) { //функция вывода информации
+    int cond;                                         //о книге по ее ISBN-коду
+    if ((cond = strcmp(ISBNprint, p->ISBN)) == 0) {
+        printf("%s;%s;%s;%d;%d\n", p->ISBN, p->author, p->name, p->all_count, p->student_count);
+    }
+    else if (cond < 0)
+        printBookInfo(p->left, ISBNprint);
+    else
+        printBookInfo(p->right, ISBNprint);
+}
+
+void editFile(struct Node* p, FILE* file) {//функция добавления в файл
+    if (p != NULL) {                          //всего бинарного дерева
+        editFile(p->left, file);
+        fputs(p->ISBN, file);
+        fputs(";", file);
+        fputs(p->author, file);
+        fputs(";", file);
+        fputs(p->name, file);
+        fputs(";", file);
+        fputs(numberInChar(p->all_count), file);
+        fputs(";", file);
+        fputs(numberInChar(p->student_count), file);
+        fputs(";", file);
+        fputs("\n", file);
+        editFile(p->right, file);
+    }
+}
+
+//------------------------------------------------------------------------------------
+
+struct Node* MakeBook(struct Node* p, struct Node* new_tree) {//функция добавления книги    #1
+    int cond;
+    if (p == NULL)  p = new_tree;
+    else if ((cond = strcmp(new_tree->ISBN, p->ISBN)) == 0)
+        printf("The book <<%s>> is already in the database", p->name);
+    else if (cond < 0)
+        p->left = MakeBook(p->left, new_tree);
+    else
+        p->right = MakeBook(p->right, new_tree);
+    return p;
+}
+
+void removeList(char* value, struct Node* root, struct Node* t) {//функция удаления книги    #2
     int cond;
     char* buf_ISBN, * buf_author, * buf_name;
     int buf_all_count, buf_student_count;
@@ -251,21 +295,7 @@ void removeList(char* value, struct Node* root, struct Node* t) {
     else removeList(value, root->left, t);
 }
 
-//-----------------------------------------------------------------------------------------------
-
-struct Node* MakeBook(struct Node* p, struct Node* new_tree) {//функция добавления книги
-    int cond;
-    if (p == NULL)  p = new_tree;
-    else if ((cond = strcmp(new_tree->ISBN, p->ISBN)) == 0)
-        printf("The book <<%s>> is already in the database", p->name);
-    else if (cond < 0)
-        p->left = MakeBook(p->left, new_tree);
-    else
-        p->right = MakeBook(p->right, new_tree);
-    return p;
-}
-
-void BooksInfo(struct Node* p) { //функция вывода информации о всех книгах
+void BooksInfo(struct Node* p) { //функция вывода информации о всех книгах  #4
     if (p != NULL) {
         BooksInfo(p->left);
         printf("%s;%s;%s;%d;%d\n", p->ISBN, p->author, p->name, p->all_count, p->student_count);
@@ -273,55 +303,13 @@ void BooksInfo(struct Node* p) { //функция вывода информац�
     }
 }
 
-void printBookInfo(struct Node* p, char* ISBNprint) { //функция вывода информации
-    int cond;                                         //о книге по ее ISBN-коду
-    if ((cond = strcmp(ISBNprint, p->ISBN)) == 0) {
-        printf("%s;%s;%s;%d;%d\n", p->ISBN, p->author, p->name, p->all_count, p->student_count);
-    }
-    else if (cond < 0)
-        printBookInfo(p->left, ISBNprint);
-    else
-        printBookInfo(p->right, ISBNprint);
-}
-
-
-
-void searchAuthor(struct Node* p, char* author) {//функция поиска книги по ее автору
-    if (p != NULL) {
-        searchAuthor(p->left, author);
-        if ((strcmp(p->name, author) == 0) && (p->all_count - p->student_count != 0)) {
-            printf("%s;%s;%s;%d;%d\n", p->ISBN, p->author, p->name, p->all_count, p->student_count);
-        }
-        searchAuthor(p->right, author);
-    }
-}
-
-void editFile(struct Node* p, FILE* file) {//функция добавления в файл
-    if (p != NULL) {                          //всего бинарного дерева
-        editFile(p->left, file);
-        fputs(p->ISBN, file);
-        fputs(";", file);
-        fputs(p->author, file);
-        fputs(";", file);
-        fputs(p->name, file);
-        fputs(";", file);
-        fputs(numberInChar(p->all_count), file);
-        fputs(";", file);
-        fputs(numberInChar(p->student_count), file);
-        fputs(";", file);
-        fputs("\n", file);
-        editFile(p->right, file);
-    }
-}
-
-void MakeBackUp(struct Node* p) {//функция создания бжкапа
+void MakeBackUp(struct Node* p) {//функция создания бжкапа      #9
     //Переменная для системного времени
     time_t s_time;
     //Указатель на структуру с локальным временем
     struct tm* m_time;
     //Строка для сохранения преобразованного времени
     char str_t[128];
-
     //Считываем системное время
     s_time = time(NULL);
     //Преобразуем системное время в локальное
@@ -347,11 +335,21 @@ void MakeBackUp(struct Node* p) {//функция создания бжкапа
     fclose(file);
 }
 
-void useBackUp(FILE* my_BackUp) {//функция использования бэкапа
+void useBackUp(FILE* my_BackUp) {//функция использования бэкапа     #10
     char line[100];
     FILE* file = fopen("books.csv", "w");
     while (fgets(line, MAXLENGHT, my_BackUp) != NULL) {
         fputs(line, file);
     }
     fclose(file);
+}
+
+void searchAuthor(struct Node* p, char* author) {//функция поиска книги по ее автору        #11
+    if (p != NULL) {
+        searchAuthor(p->left, author);
+        if ((strcmp(p->name, author) == 0) && (p->all_count - p->student_count != 0)) {
+            printf("%s;%s;%s;%d;%d\n", p->ISBN, p->author, p->name, p->all_count, p->student_count);
+        }
+        searchAuthor(p->right, author);
+    }
 }
