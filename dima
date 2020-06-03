@@ -7,7 +7,7 @@
 
 #define MAXLENGHT 200
 
-struct Node {          
+struct Node {
     char* ISBN;         //код ISBN
     char* name;         //Наименование книги
     char* author;       //Автор книги
@@ -19,12 +19,12 @@ struct Node {
 
 void editFile(struct Node* p, FILE* file);
 struct Node* readFile(char* strFile);                                   //фукция чтения строки из CSV-файла
-struct Node* MakeBook(struct Node* p, struct Node* new_tree);           //функция добавления книги                      #1
-void removeList(char* value, struct Node* root, struct Node* t);        //функция удаления книги                        #2
-void BooksInfo(struct Node* p);                                         //функция вывода информации о всех книгах       #4
-void MakeBackUp(struct Node* p);                                        //функция создания бэкапа                       #9
+struct Node* MakeBook(struct Node* p, struct Node* new_tree);           //функция добавления книги                      #1+
+void removeList(char* value, struct Node* root, struct Node* t);        //функция удаления книги                        #2+
+void BooksInfo(struct Node* p);                                         //функция вывода информации о всех книгах       #4+
+void MakeBackUp(struct Node* p);                                        //функция создания бэкапа                       #9+
 void useBackUp(FILE* my_BackUp);                                        //функция использования бэкапа                  #10
-void searchAuthor(struct Node* p, char* author);                        //функция поиска книги по ее автору             #11
+void searchAuthor(struct Node* p, char* author);                        //функция поиска книги по ее автору             #11+
 void printBookInfo(struct Node* p, char* ISBNprint);                    //функция вывода информации
 struct Node* FindSwapRemove(char* buf, struct Node* root);
 void removeSwap(char* buf, struct Node* root);
@@ -33,7 +33,7 @@ char* copymal(char* s);                                                 //фун
 
 
 int main() {
-    setlocale(LC_ALL, "Rus"); 
+    setlocale(LC_ALL, "Rus");
     int answer = 0;
     char* line = (char*)malloc((200) * sizeof(char));;
     struct Node* root = NULL, * tree;
@@ -49,32 +49,39 @@ int main() {
         switch (answer)
         {
         case 1:
+            printf("You pressed 1\n");
             scanf("%s", line);
             tree = readFile(line);
             root = MakeBook(root, tree);
             break;
         case 2:
+            printf("You pressed 2\n");
             scanf("%s", line);
             removeList(line, root, root);
             // printf("%s",tree->ISBN);
             break;
         case 4:
+            printf("You pressed 4\n");
             BooksInfo(root);
             break;
         case 9:
+            printf("You pressed 9\n");
             MakeBackUp(root);
             break;
         case 10: {
+            printf("You pressed 10\n");
             scanf("%s", line);
             FILE* file_buf = fopen(line, "r");
             useBackUp(file_buf);
             break; }
         case 11: {
-               scanf("%s", line);
-               printf("%s\n", line);
-               searchAuthor(root, line);
-               break;}
+            printf("You pressed 11\n");
+            scanf("%s", line);
+            printf("%s\n", line);
+            searchAuthor(root, line);
+            break; }
         case 12:
+            printf("Goodbye!");
             fclose(file);
         }
         scanf("%d", &answer);
