@@ -19,12 +19,12 @@ struct Node {
 
 void editFile(struct Node* p, FILE* file);
 struct Node* readFile(char* strFile);                                   //фукция чтения строки из CSV-файла
-struct Node* MakeBook(struct Node* p, struct Node* new_tree);           //функция добавления книги                      #1
-void removeList(char* value, struct Node* root, struct Node* t);        //функция удаления книги                        #2
-void BooksInfo(struct Node* p);                                         //функция вывода информации о всех книгах       #4
-void MakeBackUp(struct Node* p);                                        //функция создания бэкапа                       #9
+struct Node* MakeBook(struct Node* p, struct Node* new_tree);           //функция добавления книги                      #1+
+void removeList(char* value, struct Node* root, struct Node* t);        //функция удаления книги                        #2+
+void BooksInfo(struct Node* p);                                         //функция вывода информации о всех книгах       #4+
+void MakeBackUp(struct Node* p);                                        //функция создания бэкапа                       #9+
 void useBackUp(FILE* my_BackUp);                                        //функция использования бэкапа                  #10
-void searchAuthor(struct Node* p, char* author);                        //функция поиска книги по ее автору             #11
+void searchAuthor(struct Node* p, char* author);                        //функция поиска книги по ее автору             #11+
 void printBookInfo(struct Node* p, char* ISBNprint);                    //функция вывода информации
 struct Node* FindSwapRemove(char* buf, struct Node* root);
 void removeSwap(char* buf, struct Node* root);
@@ -354,7 +354,7 @@ void useBackUp(FILE* my_BackUp) {//функция использования б�
 void searchAuthor(struct Node* p, char* author) {//функция поиска книги по ее автору        #11
     if (p != NULL) {
         searchAuthor(p->left, author);
-        if ((strcmp(p->name, author) == 0) && (p->all_count - p->student_count != 0)) {
+        if ((strcmp(p->author, author) == 0) && (p->all_count - p->student_count != 0)) {
             printf("%s;%s;%s;%d;%d\n", p->ISBN, p->author, p->name, p->all_count, p->student_count);
         }
         searchAuthor(p->right, author);
